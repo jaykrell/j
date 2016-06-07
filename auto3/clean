@@ -1,0 +1,2 @@
+set -x
+rm -rf Makefile.in aclocal.m4 autom4te.cache config configure */Makefile.in
