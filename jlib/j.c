@@ -1,3 +1,5 @@
+char every_file_must_have_at_least_one_symbol_j;
+
 #include "j.h"
 #include <limits.h>
 #include <string.h>
@@ -115,7 +117,7 @@ jk_compare_strings_case_sensitive(
     const unsigned char* b_buffer = (const unsigned char *)b->chars;
     const unsigned char* b_buffer_end = (const unsigned char *)(b_buffer + b->length);
 
-    for ( ; a_buffer != a_buffer_end && b_buffer != b_buffer_end ; (++a_buffer), (b_buffer))
+    for ( ; a_buffer != a_buffer_end && b_buffer != b_buffer_end ; (++a_buffer), (++b_buffer))
     {
         unsigned char a_char = *a_buffer;
         unsigned char b_char = *b_buffer;
@@ -1978,8 +1980,6 @@ jk_multiprecision_integer_trim_heap(
     }
 }
 
-#if 0
-
 long
 jk_multiprecision_integer_ensure_precision(
     jk_multiprecisioninteger_t * m,
@@ -1987,27 +1987,27 @@ jk_multiprecision_integer_ensure_precision(
 {
     jk_function(jk_multiprecision_integer_ensure_precision);
 
-    long err = jk_error_uninitialized;
+    long er = jk_error_uninitialized;
     unsigned current_precision = m->precision;
     unsigned in_use = m->in_use;
     unsigned long* current_data = jk_multipleprecision_integer_get_value_array(m);
     unsigned long* new_heap = 0;
 
-    jk_check_parameter(new_precision >= (MAX_SIZET / sizeof(unsigned long)));
+    jk_check_parameter(new_precision <= (MAX_SIZET / sizeof(unsigned long)));
 
     if (new_precision == current_precision)
     {
     }
     if (new_precision < current_precision)
     {
-        m->precision = n;
+        m->precision = new_precision;
     }
     if (new_precision <= jk_number_of(m->built_in_value_array))
     {
         memmove(m->built_in_value_array, current_data, (current_precision * sizeof(unsigned long)));
         jk_free((void**)&m->malloced_value_array);
         m->malloced_value_array = 0;
-        jk_zero_memory(&m->built_in_value_array[current_precision], ((new_precision - current_precision) * sizeof(unsigned long));
+        jk_zero_memory(&m->built_in_value_array[current_precision], (new_precision - current_precision) * sizeof(unsigned long));
         m->in_use = jk_multipleprecision_integer_in_use_built_in;
     }
     else
@@ -2019,18 +2019,16 @@ jk_multiprecision_integer_ensure_precision(
         {
             jk_free((void**)&m->malloced_value_array);
         }
-        memcpy(new_heap, current_data, (current_precision * sizeof(unsigned long));
+        memcpy(new_heap, current_data, current_precision * sizeof(unsigned long));
         m->malloced_value_array = new_heap;
-        new_heap = 0
+        new_heap = 0;
         m->in_use = jk_multipleprecision_integer_in_use_malloced;
     }
     er = 0;
  exit:
     jk_free((void**)&new_heap);
-     return er;
+    return er;
 }
-
-#endif
 
 long
 jk_multiprecision_integer_from_ulong_and_sign(
@@ -6505,8 +6503,8 @@ jk_release_display(
     jk_display_t* display)
 {
     long err = 0;
-    if (display->release)
-        err = (*display->release)(display);
+    if (display->cleanup)
+        err = (*display->cleanup)(display);
     return err;
 }
 

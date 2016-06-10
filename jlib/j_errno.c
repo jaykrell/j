@@ -1,3 +1,5 @@
+char every_file_must_have_at_least_one_symbol_j_errno;
+
 #include "j.h"
 #include <errno.h>
 
@@ -11,4 +13,11 @@ jk_get_errno(
     else if (err > 0)
         err = -err;
     return err;
+}
+
+long
+jk_errno(
+    void)
+{
+    return jk_get_errno();
 }

@@ -1,3 +1,4 @@
+char every_file_must_have_at_least_one_symbol_j_gen;
 
 #ifdef _WIN32
 

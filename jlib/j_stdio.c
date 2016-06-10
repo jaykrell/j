@@ -1,3 +1,5 @@
+char every_file_must_have_at_least_one_symbol_j_stdio;
+
 #define _CRT_SECURE_NO_DEPRECATE
 #include "j.h"
 #include <stdio.h>
@@ -67,41 +69,47 @@ jk_get_stdio_filesize(
     void * void_file,
     jk_ulonglong_t * out_filesize)
 {
-    FILE * file = (FILE *) void_file,
+    FILE * file = (FILE *) void_file;
     long filesize;
     long status;
     fpos_t pos;
-#ifdef J_CONFIG_HAS_FTELL64
+#if defined(J_CONFIG_HAS_FSEEK64)
     __int64 a;
+#elif defined(J_CONFIG_HAS_FSEEKO)
+    off_t a;
 #else
     long a;
 #endif
     long e;
 
-    jk_longlong_assign_zero(out_filesize);
+    jk_ulonglong_assign_zero(out_filesize);
 
-    fflush(
+    fflush(file);
     status = fgetpos(file, &pos);
     if (status != 0)
         return jk_errno();
 
-#ifdef J_CONFIG_HAS_FSEEK64
+#if defined(J_CONFIG_HAS_FSEEK64)
     status = _fseeki64(file, 0, SEEK_END);
+#elif defined(J_CONFIG_HAS_FSEEKO)
+    status = fseeko(file, 0, SEEK_END);
 #else
     status = fseek(file, 0, SEEK_END);
 #endif
     if (status != 0)
         return jk_errno();
 
-#ifdef J_CONFIG_HAS_FTELL64
+#if defined(J_CONFIG_HAS_FTELL64)
     a = _ftelli64(file);
+#elif defined(J_CONFIG_HAS_FTELLO)
+    status = ftello(file);
 #else
     a = ftell(file);
 #endif
     if (a == -1)
     {
         e = jk_get_errno();
-        fsetpos(file, pos);
+        fsetpos(file, &pos);
         return e;
     }
 

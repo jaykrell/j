@@ -1,3 +1,5 @@
+char every_file_must_have_at_least_one_symbol_j_malloc;
+
 #include "j.h"
 #include <stdlib.h>
 

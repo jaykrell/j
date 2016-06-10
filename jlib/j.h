@@ -1,3 +1,60 @@
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#ifndef INCLUDED_J_H
+#define INCLUDED_J_H
+
+/* TODO? */
+#if defined(__MACOS_CLASSIC__) \
+    || defined(macintosh) \
+    || defined(Macintosh) \
+    || defined(applec) \
+    /*|| defined(__SC___)*/ \
+    /*|| defined(__PPCC__)*/ \
+    || defined(__MRC__) \
+    || defined(_MAC) \
+    || defined(__MWERKS__) \
+    || defined(MPW_C) \
+    || defined(MPW_CPLUS) \
+
+#define J_MAC 1
+#define J_CONFIG_MACOS_CLASSIC 1
+#endif
+
+
+#if defined(__APPLE__)
+#define J_MACX 1
+#define J_CONFIG_MACOSX 1
+#endif
+
+#if defined(_MSC_VER) || defined(_WIN32)
+#define J_CONFIG_HAS_FSEEK64
+#define J_CONFIG_HAS_FTELL64
+#else
+#define J_CONFIG_HAS_FSEEKO /* TODO autoconf */
+#define J_CONFIG_HAS_FTELLO /* TODO autoconf */
+#endif
+
+#define _NO_CRT_STDIO_INLINE /* Do not accidentally export printf. */
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_NONSTDC_NO_DEPRECATE
+#pragma warning(disable:4616) /* there is no warning x (unavoidable if targeting multiple compiler versions) */
+#pragma warning(disable:4619) /* there is no warning x (unavoidable if targeting multiple compiler versions) */
+#pragma warning(disable:4115) /* named type definition in parentheses */
+#pragma warning(disable:4100) /* unused parameter */
+#pragma warning(disable:4201) /* nonstandard extension: nameless struct/union */
+#pragma warning(disable:4214) /* nonstandard extension: bitfield other than int */
+#pragma warning(disable:4514) /* unused inline function removed */
+#pragma warning(disable:4705) /* statement has no effect for merely using assert() at -W4 */
+#pragma warning(disable:4209) /* nonstandard extension: benign re-typedef */
+#pragma warning(disable:4226) /* nonstandard extension: __export */
+#pragma warning(disable:4820) /* padding inserted */
+#pragma warning(disable:4255) /* () change to (void) */
+#pragma warning(disable:4668) /* #if of undefined symbol */
+#endif
+
 #if defined(__ORCAC__)
 #define JK_CC_CCIIGS 1
 #endif
@@ -41,6 +98,350 @@
 #endif
 #if defined(JK_CC_MPW_CPLUS)
 #define JK_CFRONT 1
+#endif
+
+#if __GNUC__ >= 4 && !defined(__osf__) && !defined(__CYGWIN__)
+#define J_HAS_VISIBILITY 1
+#else
+#define J_HAS_VISIBILITY 0
+#endif
+
+#undef _GNU_SOURCE
+#define _GNU_SOURCE
+
+/* __DARWIN_UNIX03 defaults to 1 on older and newer headers,
+ * but older headers still have context "ss" instead of "__ss"
+ * and such, so we have to force 0.
+ * That is -- the defaults vary, the behavior of the newer
+ * default is not available in older headers, so we must
+ * force the older behavior, so that we can write one compatible source.
+ */
+#if defined(__APPLE__) && !defined(__DARWIN_UNIX03)
+#define __DARWIN_UNIX03 0
+#endif
+
+#if __GNUC__ || __SUNPRO_C >= 0x590
+#define J_NO_INLINE __attribute__((noinline))
+#elif _MSC_VER >= 1300
+#define J_NO_INLINE __declspec(noinline)
+#else
+#define J_NO_INLINE /* nothing */
+#endif
+
+#ifdef __osf__
+/* To get struct tm.tm_gmtoff, tm_zone. Would be good to autoconf this? */
+#ifndef _OSF_SOURCE
+#define _OSF_SOURCE
+#endif
+/* For socklen_t. Would be good to autoconf this.
+ * This also gives us "uin-len".
+ */
+#ifndef _POSIX_PII_SOCKET
+#define _POSIX_PII_SOCKET
+#endif
+/* More clearly get "uin-len". */
+#ifndef _SOCKADDR_LEN
+#define _SOCKADDR_LEN
+#endif
+/* Request 64bit time_t. Not available on v4. Would be good to autoconf this.
+ * We later check for TIMEVAL64TO32/TIMEVAL32TO64 to see if this works.
+ */
+#ifndef _TIME64_T
+#define _TIME64_T
+#endif
+#endif /* osf */
+
+/* http://gcc.gnu.org/wiki/Visibility */
+/* Helpers for shared library support */
+#if J_HAS_VISIBILITY
+#ifdef __APPLE__
+#define J_DLL_EXPORT __attribute__ ((visibility("default")))
+#else
+#define J_DLL_EXPORT __attribute__ ((visibility("protected")))
+#endif
+#define J_DLL_LOCAL  __attribute__ ((visibility("hidden")))
+#else
+#define J_DLL_EXPORT /* nothing */
+#define J_DLL_LOCAL  /* nothing */
+#endif
+
+/* Autoconf: AC_SYS_LARGEFILE
+ */
+#define _FILE_OFFSET_BITS 64
+
+/* const is extern const in C, but static const in C++,
+ * but gcc gives a warning for the correct portable form "extern const"
+ */
+#if defined(__cplusplus) || !defined(__GNUC__)
+#define EXTERN_CONST extern const
+#else
+#define EXTERN_CONST const
+#endif
+
+#if defined(__sun) && defined(__sparc) && !defined(__MAKECONTEXT_V2_SOURCE)
+/* Support for userthreads on Solaris 9 4/03 and later.
+ * Support for older is easy but absent.
+ */
+#define __MAKECONTEXT_V2_SOURCE
+#endif
+
+#ifdef __INTERIX
+/* Autoconf: AC_USE_SYSTEM_EXTENSIONS
+ */
+#ifndef _ALL_SOURCE
+#define _ALL_SOURCE
+#endif
+#endif
+
+#ifndef _REENTRANT
+#define _REENTRANT
+#endif
+
+#ifdef __vms
+/* Enable support for files larger than 2GB.
+ * Autoconf: AC_SYS_LARGEFILE?
+ */
+#ifndef _LARGEFILE
+#define _LARGEFILE
+#endif
+/* Enable 32bit gids and reveal setreuids. */
+#ifndef __USE_LONG_GID_T
+#define __USE_LONG_GID_T 1
+#endif
+/* st_ino has three forms that all fit in the
+ * same space; pick the one we want.
+ */
+#ifndef __USE_INO64
+#define __USE_INO64 1
+#endif
+#endif
+
+#if defined(__arm__) && defined(__APPLE__)
+/* Reveal the correct struct stat? */
+#ifndef _DARWIN_FEATURE_64_ONLY_BIT_INODE
+#define _DARWIN_FEATURE_64_ONLY_BIT_INODE
+#endif
+#endif
+
+#if !defined(_MSC_VER) && !defined(__cdecl)
+#define __cdecl /* nothing */
+#endif
+
+#ifdef __cplusplus
+#define J_EXTERN_C         extern "C"
+#define J_EXTERN_C_BEGIN   extern "C" {
+#define J_EXTERN_C_END     }
+#define JEXTERNC_BEGIN     extern "C" {
+#define J_EXTERNC_BEGIN    extern "C" {
+#define JEXTERNC_END       }
+#define J_EXTERNC_END      }
+#else
+#define J_EXTERN_C         /* nothing */
+#define JEXTERNC_BEGIN     /* nothing */
+#define J_EXTERN_C_BEGIN   /* nothing */
+#define J_EXTERN_C_END     /* nothing */
+#define J_EXTERNC_BEGIN    /* nothing */
+#define JEXTERNC_END       /* nothing */
+#define J_EXTERNC_END      /* nothing */
+#endif
+
+#define JPASTE_(a, b) a##b
+#define JPASTE(a, b) JPASTE_(a, b)
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <assert.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <signal.h>
+#include <math.h>
+#include <limits.h>
+#include <setjmp.h>
+
+#ifdef _WIN32
+#ifndef WIN32
+#define WIN32
+#endif
+#include <direct.h>
+#include <io.h>
+#include <winsock.h>
+#include <process.h>
+typedef ptrdiff_t ssize_t;
+#else
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+/* Check if this system really supports _TIME64_T, i.e. Tru64 v5.1 or later. */
+#if defined(_TIME64_T) && !defined(TIMEVAL64TO32) && !defined(TIMEVAL32TO64)
+#undef _TIME64_T
+#endif
+#include <sys/wait.h>
+#include <dirent.h>
+#include <grp.h>
+#include <netdb.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <semaphore.h>
+#if !(defined(__OpenBSD__) || defined(__CYGWIN__) || defined(__vms))
+#include <sys/ucontext.h>
+#ifndef __APPLE__
+/* OpenBSD 4.3, 4.7: ucontext.h doesn't exist, ucontext_t is in signal.h
+   Cygwin: no state provided to signal handler?
+   Apple: http://tinderbox.elegosoft.com/tinderbox/cgi-bin/gunzip.cgi\
+          ?tree=cm3&brief-log=1258879870.10595#err9
+          /usr/include/ucontext.h:42:2: error: #error ucontext routines are
+          deprecated, and require _XOPEN_SOURCE to be defined
+          http://duriansoftware.com/joe/PSA:-avoiding-the-%22ucontext-\
+          routines-are-deprecated%22-error-on-Mac-OS-X-Snow-Leopard.html */
+#include <ucontext.h>
+#endif /* Apple */
+#endif /* OpenBSD, Cygwin, VMS */
+#define ZeroMemory(a, b) (memset((a), 0, (b)))
+#endif /* Win32 vs. Posix */
+
+#define ZERO_MEMORY(a) (ZeroMemory(&(a), sizeof(a)))
+
+#ifdef __INTERIX
+#include <utime.h>
+#endif
+
+#if UCHAR_MAX == 0x0FFUL
+typedef   signed char        INT8;      /* NT/Modula-3-ism */
+typedef unsigned char       UINT8;      /* NT/Modula-3-ism */
+#else
+#error unable to find 8bit integer
+#endif
+#if USHRT_MAX == 0x0FFFFUL
+typedef          short      INT16;      /* NT/Modula-3-ism */
+typedef unsigned short     UINT16;      /* NT/Modula-3-ism */
+#else
+#error unable to find 16bit integer
+#endif
+#if UINT_MAX == 0x0FFFFFFFFUL
+typedef          int        INT32;      /* NT/Modula-3-ism */
+typedef unsigned int       UINT32;      /* NT/Modula-3-ism */
+#elif ULONG_MAX == 0x0FFFFFFFFUL
+typedef          long       INT32;      /* NT/Modula-3-ism */
+typedef unsigned long      UINT32;      /* NT/Modula-3-ism */
+#else
+#error unable to find 32bit integer
+#endif
+#if defined(_MSC_VER) || defined(__DECC) || defined(__DECCXX) || defined(__int64)
+typedef          __int64    INT64;      /* NT/Modula-3-ism */
+typedef unsigned __int64   UINT64;      /* NT/Modula-3-ism */
+#else
+typedef          long long  INT64;      /* NT/Modula-3-ism */
+typedef unsigned long long UINT64;      /* NT/Modula-3-ism */
+#endif
+
+typedef unsigned char BOOLEAN;          /* NT/Modula-3-ism */
+typedef float REAL;                     /* Modula-3-ism */
+typedef double LONGREAL;                /* Modula-3-ism */
+typedef double EXTENDED;                /* Modula-3-ism */
+#if defined(__cplusplus) || __STDC__
+typedef void* ADDRESS;
+#else
+typedef char* ADDRESS;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* WORD_T/INTEGER are always exactly the same size as a pointer.
+ * VMS sometimes has 32bit size_t/ptrdiff_t but 64bit pointers.
+ */
+/* commented out is correct, but so is the #else */
+/*#if defined(_WIN64) || __INITIAL_POINTER_SIZE == 64 || defined(__LP64__) || defined(_LP64)*/
+#if __INITIAL_POINTER_SIZE == 64
+typedef INT64 INTEGER;      /* useful in C/C++? */
+typedef UINT64 WORD_T;      /* useful in C/C++? */
+#else
+typedef ptrdiff_t INTEGER;
+typedef size_t WORD_T;
+#endif
+
+/* LONGINT is always signed and exactly 64 bits. */
+typedef INT64 LONGINT;          /* useful in C/C++? */
+
+/* see Utypes.i3; we assert that these are large enough, they don't have
+be exactly correctly sizes, and often are not */
+typedef LONGINT j_dev_t;        /* useful in C/C++? */
+typedef INTEGER j_gid_t;        /* useful in C/C++? */
+typedef LONGINT j_ino_t;        /* useful in C/C++? */
+typedef INTEGER j_mode_t;       /* useful in C/C++? */
+typedef LONGINT j_nlink_t;      /* useful in C/C++? */
+typedef INTEGER j_pid_t;        /* useful in C/C++? */
+typedef ADDRESS j_pthread_t;    /* useful in C/C++? */
+typedef LONGINT j_off_t;        /* useful in C/C++? */
+typedef INTEGER j_uid_t;        /* useful in C/C++? */
+
+/*
+ j_pthread_t is void*.
+ pthread_t might be any of: size_t, ptrdiff_t, int, void*, another pointer.
+ pthread_t will not be larger than a pointer/size_t. (see Unix__Assertions)
+ Only convert integers to/from integers, and pointer-sized integers to/from pointers.
+ That is, for example, do NOT convert int <=> pointer.
+ */
+#define PTHREAD_TO_J(x)   ((j_pthread_t)(WORD_T)(x)) /* useful in C/C++? */
+#if defined(__APPLE__)
+#define PTHREAD_FROM_J(x) ((mach_port_t)(WORD_T)(x)) /* useful in C/C++? */
+#else
+#define PTHREAD_FROM_J(x) ((pthread_t)(WORD_T)(x)) /* useful in C/C++? */
+#endif
+
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#define HAS_STAT_FLAGS /* autoconf? */
+#endif
+
+/*
+socklen_t
+win32: signed 32 bit
+cygwin: signed 32 bit
+hpux: size_t (unsigned 32bit or 64bit)
+everyone else: unsigned 32 bit
+
+The values involved are all small and positive, and we convert carefully.
+Note that socklen_t should be declared by system headers, but isn't always.
+*/
+#if defined(__INTERIX) || (defined(__vms) && defined(_DECC_V4_SOURCE)) || defined(_WIN32)
+typedef int socklen_t;
+#elif defined(__vms)
+typedef size_t socklen_t;
+#endif
+typedef WORD_T j_socklen_t;
+
+typedef struct {
+/* verified to exactly match struct linger in UnixC.c, except for Cygwin */
+    int onoff;
+    int linger;
+} j_linger_t;
+
+typedef INT64 j_time_t;
+
+#if 1 /* Some compilers don't like this, will adjust as needed. */
+#if __GNUC__ /* gcc 4.8 warns about unused local typedefs. */
+#define GCC_ATTRIBUTE_UNUSED __attribute__ ((unused))
+#else
+#define GCC_ATTRIBUTE_UNUSED /* nothing */
+#endif
+#define J_STATIC_ASSERT(expr) GCC_ATTRIBUTE_UNUSED typedef char JPASTE(j_static_assert, __LINE__)[(expr)?1:-1]
+#else
+#define J_STATIC_ASSERT(expr) assert(expr)
+#endif
+
+#define J_FIELD_SIZE(type, field) (sizeof((type*)0)->field)
+#define J_SIZE_THROUGH_FIELD(type, field) (offsetof(type, field) + J_FIELD_SIZE(type, field))
+
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
 typedef int BOOL;
@@ -1425,7 +1826,7 @@ jk_ulonglong_from_ulong(
 void
 jk_ulonglong_from_int64(
     jk_ulonglong_t* a,
-    __int64 b);
+    INT64 b);
 
 long
 jk_carry_to_error(
@@ -1803,7 +2204,7 @@ jk_multiprecision_integer_from_ulong_and_sign(
 long
 jk_multiprecision_integer_ensure_precision(
     jk_multiprecisioninteger_t* m,
-    unsigned n);
+    size_t new_precision);
 
 long
 jk_multiprecision_integer_set_precision(
@@ -2689,6 +3090,10 @@ jk_unpack_mspecoff_file_header(
 
 long
 jk_get_errno(
+    void);
+
+long
+jk_errno(
     void);
 
 long
@@ -4452,12 +4857,12 @@ typedef struct DirHandle_t {
 
 typedef struct DirEntry_t {
     char* FileName;
-    unsigne
+    INT64 FileSize;
 } DirEntry_t;
 
 long
 j_opendir(
-    const char* DirPath
+    const char* DirPath,
     void** DirHandle);
 
 long
@@ -4465,7 +4870,7 @@ j_readdir(
     void* DirHandle);
 
 void
-closedir(
+j_closedir(
     void* dir);
 
 /* removed from winnt.h after Visual C++ 5.0 */
@@ -4481,3 +4886,5 @@ closedir(
 #define FILE_ATTRIBUTE_ENCRYPTED            0x00004000
 
 JK_EXTERN_C_END
+
+#endif /* INCLUDED_J_H */

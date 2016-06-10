@@ -1,12 +1,18 @@
+char every_file_must_have_at_least_one_symbol_j_macos;
+
 /*
 #include "ApplicationServices/ApplicationServices.h"
 #include <ApplicationServices/ApplicationServices.h>
 #include "ApplicationServices/QD/Quickdraw.h"
 */
 #include "j.h"
+
+#ifdef J_MAC
+
 #if defined(JK_CC_MPW_CPLUS)
 #define volatile /* nothing */
 #endif
+
 #include "Quickdraw.h"
 #undef volatile
 
@@ -87,12 +93,15 @@ jk_macos_display_end_access(
     return err;
 }
 
+#endif
+
 long
 jk_macos_get_main_display(
     jk_display_t *d)
 {
-    jk_display_t e = { 0 };
     long err = { 0 };
+#ifdef J_MAC
+    jk_display_t e = { 0 };
 
     e.opaque_handle = GetMainDevice();
     e.is_macos = 1;
@@ -112,5 +121,6 @@ jk_macos_get_main_display(
 
     err = 0;
 exit:
+#endif
     return err;
 }

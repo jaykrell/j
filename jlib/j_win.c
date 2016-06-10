@@ -1,4 +1,9 @@
 #include "j.h"
+
+char every_file_must_have_at_least_one_symbol_j_win;
+
+#ifdef _WIN32
+
 #include <windows.h>
 #include <dciman.h>
 
@@ -105,3 +110,5 @@ Exit:
 	}
 	return er;
 }
+
+#endif
