@@ -138,16 +138,6 @@ int int_to_str_len(T i)
     return int_to_str_t<T, is_signed<T>::value>::getlen(i);
 }
 
-unsigned char uc = (unsigned char)-2;
-signed char sc = (signed char)-2;
-char c = (char)-4;
-int i = __LINE__;
-short s = __LINE__;
-unsigned short us = __LINE__;
-__int64 i64 = -__LINE__;
-
-char a[IS_CHAR_SIGNED + 1];
-
 bool is_char_signed()
 {
     return IS_CHAR_SIGNED;
@@ -155,18 +145,26 @@ bool is_char_signed()
 
 //parse_guid(char* a, const void* guid, char
 
-void main2()
+void testcode_main2()
 {
-  char buffer[65];
+    unsigned char uc = (unsigned char)-2;
+    signed char sc = (signed char)-2;
+    char c = (char)-4;
+    int i = __LINE__;
+    short s = __LINE__;
+    unsigned short us = __LINE__;
+    __int64 i64 = -__LINE__;
 
-  printf("%s\n", int_to_str(sc, buffer));
-  printf("%s\n", int_to_str(c, buffer));
-  printf("%s\n", int_to_str(uc, buffer));
-  printf("%s\n", int_to_str(i64, buffer));
-  
-  char a[] = {INIT_HEX16_SEP((UINT64)(size_t)&printf, '`'), 0};
-  
-  printf("printf is at %s\n", a);
+    char buffer[65];
+
+    printf("%s\n", int_to_str(sc, buffer));
+    printf("%s\n", int_to_str(c, buffer));
+    printf("%s\n", int_to_str(uc, buffer));
+    printf("%s\n", int_to_str(i64, buffer));
+
+    char a[] = {INIT_HEX16_SEP((UINT64)(size_t)&printf, '`'), 0};
+
+    printf("printf is at %s\n", a);
 }
 
-int main() { main2(); }
+//int main() { main2(); }
