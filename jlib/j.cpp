@@ -12,7 +12,7 @@ char every_file_must_have_at_least_one_symbol_j;
 #pragma warning(disable:4127) /* conditional expression is constant */
 #endif
 
-JK_EXTERN_C_BEGIN
+//JK_EXTERN_C_BEGIN
 
 static const char sourcefile[] = "j.c";
 
@@ -7531,7 +7531,7 @@ jk_stream_buffer_write(
 #endif
 }
 
-JK_EXTERN_C_END
+//JK_EXTERN_C_END
 
 int main1(int argc, char ** argv, char **env)
 {
@@ -7821,7 +7821,4 @@ jk_file_close(
 
 #endif
 
-int main(int argc, char ** argv, char **env)
-{
-    return main1(argc, argv, env);
-}
+//int main(int argc, char ** argv, char **env) { return main1(argc, argv, env); }

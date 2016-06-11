@@ -153,7 +153,9 @@ bool is_char_signed()
     return IS_CHAR_SIGNED;
 }
 
-int main()
+//parse_guid(char* a, const void* guid, char
+
+void main2()
 {
   char buffer[65];
 
@@ -166,3 +168,5 @@ int main()
   
   printf("printf is at %s\n", a);
 }
+
+int main() { main2(); }
