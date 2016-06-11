@@ -377,7 +377,7 @@ typedef char* ADDRESS;
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 /* WORD_T/INTEGER are always exactly the same size as a pointer.
@@ -466,7 +466,7 @@ typedef INT64 j_time_t;
 #define J_SIZE_THROUGH_FIELD(type, field) (offsetof(type, field) + J_FIELD_SIZE(type, field))
 
 #ifdef __cplusplus
-} /* extern "C" */
+//} /* extern "C" */
 #endif
 
 typedef int BOOL;
@@ -548,7 +548,7 @@ File "z:Development:MPW::Interfaces&Libraries:Interfaces:CIncludes:WCharTDef.h";
 /* "const static" and "static const" are usually interchangable, but not with all compilers (MPW C). */
 #define JK_CONST_STATIC JK_STATIC_CONST
 
-JK_EXTERN_C_BEGIN
+//JK_EXTERN_C_BEGIN
 
 /* Visual C++ 2.0 headers need WIN32 but the compiler only defines _WIN32. */
 #if defined(_WIN32) && !defined(WIN32)
@@ -4966,6 +4966,6 @@ void jk_uint_to_w(uint64, wchar_t*);
 #define INIT_HEX16(x)           INIT_HEX8((x) >> 32), INIT_HEX8(x)
 #define INIT_HEX16_SEP(x, sep)  INIT_HEX8((x) >> 32), sep, INIT_HEX8(x)
 
-JK_EXTERN_C_END
+//JK_EXTERN_C_END
 
 #endif /* INCLUDED_J_H */
