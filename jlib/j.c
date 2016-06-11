@@ -7648,8 +7648,8 @@ for (i = 0 ; i != 26 ; ++i)
     unsigned j = 0;
     for (; j != 9 ; ++j)
     {
-        jk_display_plot_character(&macos_display, NULL, 'a' + i + j, i + 26 * j, (j & 1));
-        jk_display_plot_character(&macos_display, NULL, 'A' + i + j, i + 26 * j, ((j + 1) & 1));
+        jk_display_plot_character(&macosx_display, NULL, 'a' + i + j, i + 26 * j, (j & 1));
+        jk_display_plot_character(&macosx_display, NULL, 'A' + i + j, i + 26 * j, ((j + 1) & 1));
     }
 }
 

@@ -333,12 +333,37 @@ typedef unsigned long      UINT32;      /* NT/Modula-3-ism */
 #else
 #error unable to find 32bit integer
 #endif
-#if defined(_MSC_VER) || defined(__DECC) || defined(__DECCXX) || defined(__int64)
+#if !(defined(_MSC_VER) || defined(__DECC) || defined(__DECCXX) || defined(__int64))
+#define __int64 long long
+#endif
 typedef          __int64    INT64;      /* NT/Modula-3-ism */
 typedef unsigned __int64   UINT64;      /* NT/Modula-3-ism */
+
+/* 32bit integer, preferably long/unsigned long; i.e. to match Windwows */
+#if ULONG_MAX == 0x0FFFFFFFFUL
+typedef          long        LONG32;
+typedef unsigned long       ULONG32;
 #else
-typedef          long long  INT64;      /* NT/Modula-3-ism */
-typedef unsigned long long UINT64;      /* NT/Modula-3-ism */
+typedef           INT32      LONG32;
+typedef          UINT32     ULONG32;
+#endif
+
+/* 16bit integer, preferably short/unsigned short; i.e. to match Windwows */
+#if USHRT_MAX == 0x0FFFFUL
+typedef          short       SHORT16;
+typedef unsigned short      USHORT16;
+#else
+typedef           INT16      LONG16;
+typedef          UINT16     ULONG16;
+#endif
+
+/* 8bit integer, preferably signed char/unsigned char; i.e. to match Windwows */
+#if UCHAR_MAX == 0x0FFUL
+typedef   signed char       CHAR8;
+typedef unsigned char      UCHAR8;
+#else
+typedef           INT8      CHAR8;
+typedef          UINT8     UCHAR8;
 #endif
 
 typedef unsigned char BOOLEAN;          /* NT/Modula-3-ism */
@@ -4884,6 +4909,48 @@ j_closedir(
 #define FILE_ATTRIBUTE_REPARSE_POINT        0x00000400
 #define FILE_ATTRIBUTE_NOT_CONTENT_INDEXED  0x00002000
 #define FILE_ATTRIBUTE_ENCRYPTED            0x00004000
+
+/* clone of Windows guid, uuid, iid */
+typedef struct _j_win_guid_t { /* 4 2 2 1 1 1 1 1 1 1 1 = 4 + 2+ 2 + 8 = 16 */
+    ULONG32 Data1;
+    USHORT16 Data2;
+    USHORT16 Data3;
+    UCHAR8 Data4[8];
+} j_win_uuid_t, j_win_guid_t;
+
+/* clone-ish of MacOSX guid -- they use array */
+typedef struct _j_mac_guid_t { /* 4 2 2 1 1 1 1 1 1 1 1 = 4 + 2+ 2 + 8 = 16 */
+    UCHAR8 Data1[16];
+} j_mac_guid_t;
+
+/* Actual Darwin type. */
+typedef unsigned char uuid_t[16];
+typedef	char uuid_string_t[37];
+
+/* declare Darwin functions for tests */
+void uuid_clear(uuid_t uu);
+int uuid_compare(const uuid_t uu1, const uuid_t uu2);
+void uuid_copy(uuid_t dst, const uuid_t src);
+void uuid_generate(uuid_t out);
+void uuid_generate_random(uuid_t out);
+void uuid_generate_time(uuid_t out);
+int uuid_is_null(const uuid_t uu);
+int uuid_parse(const uuid_string_t in, uuid_t uu);
+void uuid_unparse(const uuid_t uu, uuid_string_t out);
+void uuid_unparse_lower(const uuid_t uu, uuid_string_t out);
+void uuid_unparse_upper(const uuid_t uu, uuid_string_t out);
+
+/* integer parsing/unparsing */
+
+#define max_int_str (3+1+64) /* todo slight overkill */
+
+typedef UINT64 uint64;
+typedef INT64 int64;
+
+void jk_int_to_a(int64, char*);
+void jk_int_to_w(int64, wchar_t*);
+void jk_uint_to_a(uint64, char*);
+void jk_uint_to_w(uint64, wchar_t*);
 
 JK_EXTERN_C_END
 
