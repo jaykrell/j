@@ -4952,6 +4952,20 @@ void jk_int_to_w(int64, wchar_t*);
 void jk_uint_to_a(uint64, char*);
 void jk_uint_to_w(uint64, wchar_t*);
 
+#define HEX_CHARS "0123456789ABCDEF"
+
+/* usage:
+   void F1(UCHAR a)
+   { char str[] = ( INIT_HEX2(a) };
+   or char str[] = ( INIT_HEX2(a), 0 };
+   etc. */
+#define INIT_HEX1(x)            HEX_CHARS[(x) & 0xF]
+#define INIT_HEX2(x)            INIT_HEX1((x) >> 4), INIT_HEX1(x)
+#define INIT_HEX4(x)            INIT_HEX2((x) >> 8), INIT_HEX2(x)
+#define INIT_HEX8(x)            INIT_HEX4((x) >> 16), INIT_HEX4(x)
+#define INIT_HEX16(x)           INIT_HEX8((x) >> 32), INIT_HEX8(x)
+#define INIT_HEX16_SEP(x, sep)  INIT_HEX8((x) >> 32), sep, INIT_HEX8(x)
+
 JK_EXTERN_C_END
 
 #endif /* INCLUDED_J_H */

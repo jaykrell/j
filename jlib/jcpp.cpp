@@ -161,4 +161,8 @@ int main()
   printf("%s\n", int_to_str(c, buffer));
   printf("%s\n", int_to_str(uc, buffer));
   printf("%s\n", int_to_str(i64, buffer));
+  
+  char a[] = {INIT_HEX16_SEP((UINT64)(size_t)&printf, '`'), 0};
+  
+  printf("printf is at %s\n", a);
 }
