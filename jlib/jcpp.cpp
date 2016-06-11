@@ -155,7 +155,7 @@ bool is_char_signed()
 
 int main()
 {
-  char buffer[17];
+  char buffer[65];
 
   printf("%s\n", int_to_str(sc, buffer));
   printf("%s\n", int_to_str(c, buffer));
