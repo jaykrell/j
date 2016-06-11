@@ -1,7 +1,6 @@
 #include "j.h"
 #include <algorithm>
 
-// forward declare
 template <typename T> struct unsignedT;
 template <typename T> struct signedT;
 template <typename T> struct is_unsigned;
