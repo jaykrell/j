@@ -34,6 +34,7 @@ PACKAGE=libtool
 VERSION=2.4.6
 package_revision=2.4.6
 
+compile_once=yes
 
 ## ------ ##
 ## Usage. ##
@@ -3551,18 +3552,24 @@ compiler."
 
     # Only build a position-dependent object if we build old libraries.
     if test yes = "$build_old_libs"; then
-      if test yes != "$pic_mode"; then
-	# Don't build PIC code
-	command="$base_compile $qsrcfile$pie_flag"
+      if test yes = "$compile_once"; then
+        # Compile once, PIC and use that in shared and static libs.
+        # NOTE: This is not ideal but it is a step.
+        command="cp -fp $lobj $obj"
       else
-	command="$base_compile $qsrcfile $pic_flag"
-      fi
-      if test yes = "$compiler_c_o"; then
-	func_append command " -o $obj"
-      fi
+        if test yes != "$pic_mode"; then
+	  # Don't build PIC code
+          command="$base_compile $qsrcfile$pie_flag"
+        else
+	  command="$base_compile $qsrcfile $pic_flag"
+        fi
+        if test yes = "$compiler_c_o"; then
+	  func_append command " -o $obj"
+        fi
 
-      # Suppress compiler output if we already did a PIC compilation.
-      func_append command "$suppress_output"
+        # Suppress compiler output if we already did a PIC compilation.
+        func_append command "$suppress_output"
+      fi
       func_show_eval_locale "$command" \
         '$opt_dry_run || $RM $removelist; exit $EXIT_FAILURE'
 
