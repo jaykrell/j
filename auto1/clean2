@@ -5,7 +5,7 @@ set -x
 rm -rf CMakeFiles CMakeCache.txt lib/CMakeFiles prog/CMakeFiles Makefile */Makefile
 rm -rf build.ninja	libtodo.a	rules.ninja
 # rm -rf Makefile.in
-rm -rf aclocal.m4
+# rm -rf aclocal.m4
 # rm -rf configure
 rm -rf config.status
 rm -rf config.log
